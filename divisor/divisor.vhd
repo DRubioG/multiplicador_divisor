@@ -63,10 +63,12 @@ begin
   begin
     if rising_edge(CLK_I) then
       if RST_N_I = '0' then
-        s_dividendo <= (others => '0');
-        s_divisor   <= (others => '0');
-        s_cociente  <= (others => '0');
-        DONE_O      <= '0';
+        s_dividendo  <= (others => '0');
+        s_divisor    <= (others => '0');
+        s_cociente   <= (others => '0');
+        s_COCIENTE_O <= (others => '0');
+        s_RESTO_O    <= (others => '0');
+        DONE_O       <= '0';
       elsif EN_I = '1' then
         if START_I = '1' then
           s_dividendo <= s_DIVIDENDO_I;
