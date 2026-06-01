@@ -11,47 +11,52 @@ architecture bench of divisor_tb is
   constant clk_period : time := 5 ns;
   -- Generics
   -- Ports
-  signal clk : std_logic:='0';
-  constant NA : integer := 16;
-  constant NB : integer := 8;
-  
-  
-  signal start : std_logic;
-  signal a : std_logic_vector(NA-1 downto 0);
-  signal b : std_logic_vector(NB-1 downto 0);
-  signal q : std_logic_vector(NA-1 downto 0);
-  signal r : std_logic_vector(NB-1 downto 0);
-  signal DONE : std_logic;
+  signal CLK_I             : std_logic := '0';
+  constant G_TAM_DIVIDENDO : integer   := 32;
+  constant G_TAM_DIVISOR   : integer   := 8;
+  signal START_I           : std_logic;
+  signal DIVIDENDO_I       : std_logic_vector(G_TAM_DIVIDENDO - 1 downto 0);
+  signal DIVISOR_I         : std_logic_vector(G_TAM_DIVISOR - 1 downto 0);
+  signal COCIENTE_O        : std_logic_vector(G_TAM_DIVIDENDO - 1 downto 0);
+  signal RESTO_O           : std_logic_vector(G_TAM_DIVISOR - 1 downto 0);
+  signal DONE_O            : std_logic;
 begin
 
   divisor_inst : entity work.divisor
-    generic map (
-        G_WA => NA,
-        G_WB => NB
+    generic map(
+      G_TAM_DIVIDENDO => G_TAM_DIVIDENDO,
+      G_TAM_DIVISOR   => G_TAM_DIVISOR
     )
-  port map (
-    CLK_I => clk,
-    RST_N_I => '1',
-    EN_I => '1',
-    START_I => start,
-    A_I => a,
-    B_I => b,
-    COCIENTE_O => q,
-    RESTO_O => r,
-    DONE_O => DONE
-  );
-clk <= not clk after clk_period/2;
+    port map
+    (
+      CLK_I       => CLK_I,
+      RST_N_I     => '1',
+      EN_I        => '1',
+      START_I     => START_I,
+      DIVIDENDO_I => DIVIDENDO_I,
+      DIVISOR_I   => DIVISOR_I,
+      COCIENTE_O  => COCIENTE_O,
+      RESTO_O     => RESTO_O,
+      DONE_O      => DONE_O
+    );
+  CLK_I <= not CLK_I after clk_period/2;
 
-process begin
-  start <= '1';
-  wait for 10 ns;
-  start <= '0';
-  wait until DONE='1';
-  wait for 350 ns;
-  
-end process;
+  process begin
+    START_I <= '1';
+    wait for 10 ns;
+    START_I <= '0';
+    wait until DONE_O = '1';
+    wait for 350 ns;
+    report "Terminamos primera parte";
+    START_I <= '1';
+    wait for 10 ns;
+    START_I <= '0';
+    wait until DONE_O = '1';
+    wait for 350 ns;
+    report "FIN" severity FAILURE;
+  end process;
 
-a <= x"0007", x"5050" after 30 ns;
-b <= x"02";
+  DIVIDENDO_I <= x"00000007", x"00500000" after 30 ns;
+  DIVISOR_I   <= x"0a";
 
 end;
